@@ -1,0 +1,124 @@
+﻿<window:CustomWindow x:Class="Tabuada.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:window="clr-namespace:Tabuada.Theme"
+        xmlns:local="clr-namespace:Tabuada"
+        xmlns:extenders="clr-namespace:Tabuada.Extenders"
+        xmlns:converters="clr-namespace:Tabuada.Converters" FontFamily="{Binding FontFamily}"
+        Title="TABUADA" Width="700" SizeToContent="Height" Style="{StaticResource StyleWindow}" WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:BooleanToInvert x:Key="BooleanToInvert"/>
+        <converters:BooleanToVisibilityConverterInvert x:Key="BooleanToVisibilityConverterInvert"/>
+
+        <DataTemplate DataType="{x:Type local:ResultadosSoma}">
+            <!--TextDecorations="Underline"-->
+            <TextBlock Text="{Binding Resultado}" Foreground="{Binding Cor}"/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <StackPanel>
+        <Border BorderBrush="Gray" BorderThickness="1" Padding="10">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox x:Name="chkTudoAleatorio" Content="Toda Tabuada Aleatoriamente" IsEnabled="{Binding Executando, Converter={StaticResource BooleanToInvert}}" IsChecked="{Binding Aleatoriamente}" FontFamily="{Binding FontFamily}"/>
+                    <CheckBox x:Name="chkAleatorio" Margin="10,0,0,0" Content="Em Sequencia" IsEnabled="{Binding Executando, Converter={StaticResource BooleanToInvert}}" IsChecked="{Binding PerguntaSequencial}"
+                              Visibility="{Binding ElementName=chkTudoAleatorio, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverterInvert}}" FontFamily="{Binding FontFamily}"/>
+                    <CheckBox x:Name="chkAudio" Content="Com Voz" IsChecked="{Binding ComAudio}" Margin="10,0,0,0" FontFamily="{Binding FontFamily}"/>
+                </StackPanel>
+                <Separator/>
+                <StackPanel Visibility="{Binding ElementName=chkAudio , Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Velocidade da Voz"/>
+                    <Slider Maximum="10" Value="{Binding SpeechSynthesizer.Rate}"/>
+                    <!--<TextBlock Text="Volume"/>
+                    <Slider Maximum="10" Value="{Binding SpeechSynthesizer.Volume}"/>-->
+                </StackPanel>
+                <Grid Margin="0,5,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Tabuada de:" Visibility="{Binding ElementName=chkTudoAleatorio, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverterInvert}}"
+                               FontFamily="{Binding FontFamily}"/>
+                    <ComboBox Grid.Row="1" Grid.Column="0" Width="75" ItemsSource="{Binding Tabuada}" FontSize="25" SelectedIndex="0" Visibility="{Binding ElementName=chkTudoAleatorio, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverterInvert}}"
+                              SelectionChanged="ComboBox_SelectionChanged_1" IsEnabled="{Binding Executando, Converter={StaticResource BooleanToInvert}}" Margin="0,0,10,0" FontFamily="{Binding FontFamily}"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Operação" FontFamily="{Binding FontFamily}"/>
+                    <ComboBox x:Name="cmbOperacao" Grid.Row="1" Grid.Column="1" Width="150" ItemsSource="{Binding Operacoes}" FontFamily="{Binding FontFamily}"
+                              FontSize="25" SelectedIndex="0" SelectionChanged="ComboBox_SelectionChanged" IsEnabled="{Binding Executando, Converter={StaticResource BooleanToInvert}}"/>
+
+                    <Button x:Name="btnInicar" Grid.Row="1" Grid.Column="2" Width="150" Content="Inicia" Click="Inicia_Click"
+                             IsEnabled="{Binding Executando, Converter={StaticResource BooleanToInvert}}"/>
+                    <Button x:Name="btnCancela" Grid.Row="1" Grid.Column="3" Width="150" Content="Cancela" Click="Cancela_Click"
+                             IsEnabled="{Binding Executando}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+        <Grid Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <!--<Border Grid.Column="0" Height="400" BorderBrush="Gray" BorderThickness="1" Padding="2">
+                <Border.Background>
+                    <ImageBrush ImageSource="Images\Painel.jpg"/>
+                </Border.Background>
+                <ScrollViewer extenders:ScrollViewerToBottom.ScrollToBottom="true" Margin="26,68,7,44">
+                    <ItemsControl ItemsSource="{Binding Resultados}" FontSize="25" FontWeight="Bold" FontFamily="{Binding FontFamily}"/>
+                </ScrollViewer>
+            </Border>-->
+            <Border Grid.Column="0" Height="400" BorderBrush="Gray" BorderThickness="1" Padding="2">
+                <ScrollViewer extenders:ScrollViewerToBottom.ScrollToBottom="true" Margin="10,5,0,0">
+                    <ItemsControl ItemsSource="{Binding Resultados}" FontSize="25" FontWeight="Bold" FontFamily="{Binding FontFamily}"/>
+                </ScrollViewer>
+            </Border>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Margin="5,0,0,0">
+                    <TextBlock Grid.Row="0" Text="{Binding Pergunta}" HorizontalAlignment="Center" FontSize="60" FontWeight="Bold" Foreground="DarkBlue"/>
+                    <StackPanel x:Name="stkStatus">
+                        <TextBlock FontSize="25" Text="{Binding Status.Status}" Foreground="{Binding Status.Brush}" FontFamily="{Binding FontFamily}"/>
+                        <TextBlock FontSize="25" FontFamily="{Binding FontFamily}">
+                            <TextBlock.Inlines>
+                                <Run Text="Erros: "/>
+                                <Run Text="{Binding Status.Erros}"/>
+                            </TextBlock.Inlines>
+                        </TextBlock>
+                        <TextBlock FontSize="25" FontFamily="{Binding FontFamily}">
+                            <TextBlock.Inlines>
+                                <Run Text="Tempo: "/>
+                                <Run Text="{Binding Status.Tempo}"/>
+                            </TextBlock.Inlines>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Reposta" HorizontalAlignment="Center"/>
+                <extenders:TextBoxInt x:Name="txtResultado" Grid.Row="2" Text="{Binding Resultado, UpdateSourceTrigger=PropertyChanged}" Width="100" FontSize="50" TextAlignment="Center" FontWeight="Bold" MaxLength="3" PreviewKeyDown="TextBox_PreviewKeyDown"
+                                      IsEnabled="{Binding Executando}" FontFamily="{Binding FontFamily}"/>
+            </Grid>
+        </Grid>
+        <Border Margin="0,5,0,0" BorderBrush="Gray" BorderThickness="1" Height="40">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Cronometro}" VerticalAlignment="Center" FontWeight="Bold" FontSize="15" FontFamily="{Binding FontFamily}"/>
+            </Grid>
+        </Border>
+    </StackPanel>
+</window:CustomWindow>
